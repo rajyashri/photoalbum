@@ -4,6 +4,8 @@ import cs213.photoAlbum.model.User;
 
 public class Album {
 
+	static final long serialVersionUID = 2292274;
+
 	private String name;
 	private User owner;
 

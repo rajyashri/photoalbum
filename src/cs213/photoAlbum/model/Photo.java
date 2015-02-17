@@ -1,14 +1,15 @@
 package cs213.photoAlbum.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Map;
 
-public class Photo {
+public class Photo implements Serializable {
+
+	static final long serialVersionUID = 829229;
 
 	private String fileName;
 	private String caption;
 	private Calendar dateTime;
-	private Map<String, String> tags;
 
 	/**
 	 * @return the fileName
