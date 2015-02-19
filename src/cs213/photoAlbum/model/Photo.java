@@ -1,14 +1,18 @@
+/**
+ * @author Victor Kaiser-Pendergrast
+ */
+
 package cs213.photoAlbum.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
 
-public class Photo implements Serializable {
+public class Photo implements IPhoto, Serializable {
 
 	static final long serialVersionUID = 829229;
 	
-	private static class Tag implements Serializable {
+	private static class Tag implements Serializable, Comparable<Tag> {
 		static final long serialVersionUID = 54833;
 		
 		private String key;
@@ -28,6 +32,12 @@ public class Photo implements Serializable {
 			}
 			
 			return false;
+		}
+
+		@Override
+		public int compareTo(Tag other) {
+			int keyCompare = key.compareTo(other.getKey());
+			return (keyCompare == 0) ? (value.compareTo(other.getValue())) : (keyCompare);
 		}
 
 		/**
@@ -128,6 +138,21 @@ public class Photo implements Serializable {
 	 */
 	public void removeTag(String tag) {
 		tags.remove(tag);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof IPhoto) {
+			IPhoto photo = (IPhoto) other;
+			return fileName.equals(photo.getFileName()); 
+		}
+		
+		return false;
+	}
+
+	@Override
+	public int compareTo(IPhoto other) {
+		return fileName.compareTo(other.getFileName());	
 	}
 
 }

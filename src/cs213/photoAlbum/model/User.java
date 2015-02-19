@@ -1,34 +1,32 @@
+/**
+ * @author Victor Kaiser-Pendergrast
+ */
+
 package cs213.photoAlbum.model;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
-public class User {
+import cs213.photoAlbum.util.BinarySearchList;
+
+public class User implements IUser, Serializable {
 
 	static final long serialVersionUID = 58436;
 
 	private String userId;
 	private String fullName;
-	private ArrayList<Album> albums;
+	private List<IAlbum> albums;
 
 	public User(String id, String name) {
 		userId = id;
 		fullName = name;
-		albums = new ArrayList<Album>();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if(o instanceof User) {
-			
-		}
-
-		return false;
+		albums = new BinarySearchList<IAlbum>();
 	}
 
 	/**
 	 * @return the userId
 	 */
+	@Override
 	public String getUserId() {
 		return userId;
 	}
@@ -36,6 +34,7 @@ public class User {
 	/**
 	 * @param userId the userId to set
 	 */
+	@Override
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
@@ -43,6 +42,7 @@ public class User {
 	/**
 	 * @return the fullName
 	 */
+	@Override
 	public String getFullName() {
 		return fullName;
 	}
@@ -50,30 +50,58 @@ public class User {
 	/**
 	 * @param fullName the fullName to set
 	 */
+	@Override
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
 	}
 
-	public void addAlbum(Album a){ 
-		albums.add(a);
+	/**
+	 * Add an album to this User
+	 * @return true if added successfully, false if album already exists
+	 */
+	@Override
+	public boolean addAlbum(IAlbum a){ 
+		return albums.add(a);
 	}
 
 	/**
 	 * @return true if this user has this album
 	 */
-	public boolean containsAlbum(Album a) {
+	@Override
+	public boolean containsAlbum(IAlbum a) {
 		return albums.contains(a);
 	}
 
+	/**
+	 * @return true if this user has this album
+	 */
+	@Override
 	public boolean containsAlbum(String albumName) {
 		return containsAlbum(new Album(albumName, this));
 	}
 
 	/**
 	 * Remove an album and its photos
+	 * @return true if added successfully, false if album already exists
 	 */
-	public void removeAlbum(Album a) {
-		albums.remove(a);
+	@Override
+	public boolean removeAlbum(IAlbum a) {
+		return albums.remove(a);
 	}
+
+	@Override
+	public int compareTo(IUser other) {
+		return userId.compareTo(other.getUserId());
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof IUser) {
+			return userId.equals( ((IUser) other).getUserId());
+		}
+
+		return false;
+	}
+
 
 }
