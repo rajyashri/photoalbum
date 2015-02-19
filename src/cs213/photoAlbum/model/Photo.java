@@ -136,9 +136,32 @@ public class Photo implements IPhoto, Serializable {
 	/**
 	 * Remove a tag from this photo
 	 */
-	public void removeTag(String tag) {
-		tags.remove(tag);
+	public boolean removeTag(String tag) {
+		return tags.remove(tag);
 	}
+
+	/**
+	 * Determine if this photo has a tag of a certain type and value
+	 * @param tag tag type of interest
+	 * @param value tag value corresponding to tag type
+	 * @return true if this Photo has a tag with this name
+	 */
+	public boolean hasTag(String tag, String value) {
+		// TODO
+		return false;
+	}
+
+	/**
+	 * Determine if this photo has a tag of a certain type and value
+	 * @param tag tag type of interest
+	 * @param value tag value corresponding to tag type
+	 * @return true if this Photo had a tag with this name
+	 */
+	public boolean removeTag(String tag, String value) {
+		// TODO
+		return false;
+	}
+
 
 	@Override
 	public boolean equals(Object other) {
