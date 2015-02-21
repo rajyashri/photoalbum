@@ -103,5 +103,10 @@ public class User implements IUser, Serializable {
 		return false;
 	}
 
+	@Override
+	public List<IAlbum> getAlbums() {
+		return albums;
+	}
+
 
 }

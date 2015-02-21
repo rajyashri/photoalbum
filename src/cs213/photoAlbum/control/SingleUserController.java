@@ -4,6 +4,8 @@
 
 package cs213.photoAlbum.control;
 
+import java.util.List;
+
 import cs213.photoAlbum.model.IAlbum;
 
 public class SingleUserController {
@@ -47,6 +49,14 @@ public class SingleUserController {
 		return false;
 	}
 
+	/**	
+	 * @return true if album added, false if it already existed
+	 */
+	public List<IAlbum> listAlbums() {
+		// TO DO
+		return null;
+	}
+	
 	/**
 	 * Add a photo to the user's album
 	 * @return true if photo added to album successfully, false otherwise
@@ -65,23 +75,5 @@ public class SingleUserController {
 		return false;
 	}
 
-	/**
-	 * Add a tag to a photo
-	 * @return true if tag added to photo successfully, false otherwise
-	 */
-	public boolean addTagToPhoto(String albumName, String photoFilePath, String key, String value) {
-		// TODO
-		return false;
-	}
-
-	/**
-	 * Remove a tag from a photo
-	 * @return true if tag removed, false otherwise
-	 */
-	public boolean removeTagFromPhoto(String albumName, String photoFilePath, String key, String value) {
-		// TODO
-		return false;
-	}
-    
-
+	
 }
