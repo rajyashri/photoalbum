@@ -47,5 +47,7 @@ public interface IUser extends Comparable<IUser> {
 	 * @return true if the album was removed, false if the album did not exist
 	 */
 	public boolean removeAlbum(IAlbum a);
+	
+	public List<IAlbum> getAlbums();
 
 }

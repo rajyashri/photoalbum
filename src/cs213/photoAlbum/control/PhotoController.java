@@ -1,5 +1,8 @@
 package cs213.photoAlbum.control;
 
+import java.util.Calendar;
+
+import cs213.photoAlbum.model.IAlbum;
 import cs213.photoAlbum.model.IPhoto;
 
 public class PhotoController {
@@ -8,12 +11,34 @@ public class PhotoController {
 		
 	}
 	
-	/*
+	/**
 	 * 
+	 * @param tagName
+	 * @return list of photos in the album using the tag name provided by the user
 	 */
 	
-	public IPhoto listByTag(String tagName){
+	public IPhoto listByTag(String tagName, String albumName){
 		return null;
+		
+	}
+	/**
+	 * 
+	 * @param tagName
+	 * @return list of photos in the album using the Date provided by the user
+	 */
+	
+	public IPhoto listByDate(Calendar date){
+		return null;
+		
+	}
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public boolean movePhoto(IAlbum a, IAlbum b){
+		return false;
 		
 	}
 	/**
@@ -33,6 +58,7 @@ public class PhotoController {
 		// TODO
 		return false;
 	}
+	
     
 	
 
