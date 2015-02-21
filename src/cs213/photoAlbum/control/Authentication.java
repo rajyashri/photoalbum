@@ -1,3 +1,7 @@
+/**
+ * @author Rajyashri Vasudevamoorthy
+ */
+
 package cs213.photoAlbum.control;
 
 public class Authentication {
