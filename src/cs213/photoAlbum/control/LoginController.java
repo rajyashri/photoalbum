@@ -1,3 +1,7 @@
+/**
+ * @author Rajyashri Vasudevamoorthy
+ */
+
 package cs213.photoAlbum.control;
 
 import cs213.photoAlbum.model.IUser;
