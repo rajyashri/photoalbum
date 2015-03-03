@@ -28,12 +28,5 @@ public interface ISingleUserController {
 		 */
 		public boolean addAlbum(String albumName);
 
-		/**
-		 * Add a photo to the user's album
-		 * @return true if photo added to album successfully, false otherwise
-		 */
 		
-	}
-
-
-
+}
