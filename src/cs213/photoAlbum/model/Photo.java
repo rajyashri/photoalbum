@@ -4,9 +4,12 @@
 
 package cs213.photoAlbum.model;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.List;
+
+import cs213.photoAlbum.util.BinarySearchList;
 
 public class Photo implements IPhoto, Serializable {
 
@@ -74,7 +77,30 @@ public class Photo implements IPhoto, Serializable {
 	private String caption;
 	private Calendar dateTime;
 	
-	private List<Tag> tags;
+	private BinarySearchList<Tag> tags;
+
+	/**
+	 * Create a photo with a valid file name, caption,
+	 * will infer date and time from file
+	 * @param fileName the path to photo file, file must exist
+	 * @param caption a String caption for this file
+	 * @throws FileNotFoundException if file specified by fileName doesn't exist
+	 */
+	public Photo(String fileName, String caption) throws FileNotFoundException {
+		this.fileName = fileName;
+		this.caption = caption;
+		this.tags = new BinarySearchList<Tag>();
+
+		// Try to open the file to get last modified time
+		File f = new File(fileName);
+		if(!f.exists()) {
+			throw new FileNotFoundException("File " + fileName + " does not exist");
+		}
+
+		dateTime = Calendar.getInstance();
+		dateTime.setTimeInMillis(f.lastModified());
+		dateTime.set(Calendar.MILLISECOND, 0);
+	}
 
 	/**
 	 * @return the fileName
@@ -147,8 +173,7 @@ public class Photo implements IPhoto, Serializable {
 	 * @return true if this Photo has a tag with this name
 	 */
 	public boolean hasTag(String tag, String value) {
-		// TODO
-		return false;
+		return tags.contains(new Tag(tag, value));
 	}
 
 	/**
@@ -158,8 +183,7 @@ public class Photo implements IPhoto, Serializable {
 	 * @return true if this Photo had a tag with this name
 	 */
 	public boolean removeTag(String tag, String value) {
-		// TODO
-		return false;
+		return tags.remove(new Tag(tag, value));
 	}
 
 
