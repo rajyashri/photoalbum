@@ -13,7 +13,7 @@ public class LoginController {
 	private User userModel;
 	private InteractiveView userView;
 	private String userid;
-	private String pwd;
+	//private String pwd;
 	
 	public LoginController(User userModel, InteractiveView userView){
 		this.userModel = userModel;
@@ -21,7 +21,9 @@ public class LoginController {
 		
 		
 	}
-	
+	public LoginController(){
+		
+	}
 	/**
 	 * 
 	 * @param userName
@@ -51,6 +53,12 @@ public class LoginController {
 	{
 		return null;
 		
+	}
+	public String getUserid() {
+		return userid;
+	}
+	public void setUserid(String userid) {
+		this.userid = userid;
 	}
 	
 	
