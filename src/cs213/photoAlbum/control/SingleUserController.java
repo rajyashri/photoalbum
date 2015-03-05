@@ -13,8 +13,15 @@ public class SingleUserController {
 	/**
 	 * Create a SingleUserController, specifying user by user ID
 	 */
+	String userID;
 	public SingleUserController(String userId) {
 		// TODO
+	    userID = userId;
+
+	}
+
+	public SingleUserController() {
+		// TODO Auto-generated constructor stub
 	}
 
 	/**

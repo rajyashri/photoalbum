@@ -37,8 +37,14 @@ public class CmdView {
 					} else {
 						System.out.println("user " + argv[1] + " does not exist");
 					}
-				}  else if ("login".equals(argv[1])) {
+				}  else if ("login".equals(argv[0])) {
 					// TODO launch interactive mode
+					 String loginId = argv[1];
+					 if(controller.userExists(loginId)){
+						 InteractiveView userMode = new InteractiveView(controller.getUser(loginId));
+						    userMode.userEdit();
+					 }
+					  
 				}
 				break;
 			case 3:
