@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -41,6 +42,8 @@ import cs213.photoAlbum.model.IUser;
 import cs213.photoAlbum.model.Photo;
 
 public class UserWindowView extends JFrame implements ActionListener {
+
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
 
 	// General layout and three panes
 	private GridBagLayout layout;
@@ -78,7 +81,9 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 	// Session state
 	private IAlbum albumSelected = null;
+	private List<IPhoto> photoList;
 	private IPhoto photoSelected = null;
+	private int photoSelectedIndex = -1;
 
 	public static void show(IUserController userController, IUser user) {
 		try {
@@ -253,7 +258,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 			// Setup photo grid
 			photoGrid = new JPanel(new GridLayout(0, 3));
-			final List<IPhoto> photoList  = controller.getPhotos(albumSelected.getName());
+			photoList  = controller.getPhotos(albumSelected.getName());
 			for(int i = 0; i < photoList.size(); i++) {
 				final IPhoto photo = photoList.get(i);
 				ImageIcon icon = new ImageIcon(photo.getFileName());
@@ -262,10 +267,12 @@ public class UserWindowView extends JFrame implements ActionListener {
 								.getScaledInstance(100, 100 * icon.getImage().getHeight(this) / 
 									icon.getImage().getWidth(this), java.awt.Image.SCALE_FAST), 
 							photo.getCaption()));
+				final int index = i;
 				button.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						photoSelected = photo;
+						photoSelectedIndex = index;
 						setupPhotoDetailPanel();
 					}
 				});
@@ -350,11 +357,30 @@ public class UserWindowView extends JFrame implements ActionListener {
 			GridBagConstraints cnts = new GridBagConstraints();
 			cnts.fill = GridBagConstraints.BOTH;
 
+
 			cnts.gridx = 0;
 			cnts.gridy = 0;
+			cnts.gridwidth = 1;
+			cnts.gridheight = 1;
+			JButton previousButton = new JButton("<<");
+			previousButton.addActionListener(this);
+			photoDetailPanel.add(previousButton, cnts);
+
+			cnts.gridx = 1;
+			cnts.gridy = 0;
+			cnts.gridwidth = 1;
+			cnts.gridheight = 1;
+			JButton nextButton = new JButton(">>");
+			nextButton.addActionListener(this);
+			photoDetailPanel.add(nextButton, cnts);
+
+			cnts.gridy++;
+			photoDetailPanel.add(new JLabel(" "), cnts);
+
+			cnts.gridx = 0;
+			cnts.gridy++;
 			cnts.gridwidth = 3;
 			cnts.gridheight = 1;
-
 			ImageIcon icon = new ImageIcon(photoSelected.getFileName());
 			JLabel iconLabel = new JLabel(new ImageIcon(
 						(icon.getImage())
@@ -364,18 +390,27 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 
 			cnts.gridx = 0;
-			cnts.gridy = 1;
+			cnts.gridy++;
 			cnts.gridwidth = 3;
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
 			cnts.ipady = 10;
+			JLabel captionlabel = new JLabel("Caption: " + photoSelected.getCaption());
+			photoDetailPanel.add(captionlabel, cnts);
 
-			JLabel label = new JLabel("Caption: " + photoSelected.getCaption());
-			photoDetailPanel.add(label, cnts);
+			cnts.gridx = 0;
+			cnts.gridy++;
+			cnts.gridwidth = 3;
+			cnts.gridheight = 1;
+			cnts.ipadx = 10;
+			cnts.ipady = 10;
+		    JLabel dateLabel = new JLabel("Date: " + DATE_FORMAT.format(photoSelected.getDateTime().getTime()));
+			photoDetailPanel.add(dateLabel, cnts);
+
 
 			JButton editCaption = new JButton("Edit Caption");
 			cnts.gridx = 0;
-			cnts.gridy = 2;
+			cnts.gridy++;
 			cnts.gridwidth = 1;
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
@@ -411,7 +446,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 			photoDetailPanel.add(editCaption, cnts);
 
 			cnts.gridx = 1;
-			cnts.gridy = 2;
 			cnts.gridwidth = 1;
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
@@ -419,7 +453,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 			photoDetailPanel.add(editTags, cnts);
 
 			cnts.gridx = 0;
-			cnts.gridy = 3;
+			cnts.gridy++;
 			cnts.gridwidth = 1;
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
@@ -449,7 +483,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 
 			cnts.gridx = 1;
-			cnts.gridy = 3;
 			cnts.gridwidth = 1;
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
@@ -498,7 +531,9 @@ public class UserWindowView extends JFrame implements ActionListener {
 		if(event.getSource() == albumAdd) {
 			// Show dialog to add album
 			String name = JOptionPane.showInputDialog(this, "Enter name for new album:", "Create Album", JOptionPane.PLAIN_MESSAGE);
-			if(name.isEmpty()) {
+			if(name == null) {
+				// Do nothing
+			} else	if(name.isEmpty()) {
 				JOptionPane.showMessageDialog(this, "Album name can't be blank", "Invalid Album Name", JOptionPane.ERROR_MESSAGE);
 			} else if(controller.hasAlbum(name)) {
 				JOptionPane.showMessageDialog(this, "There is already an album with name \"" + name + "\"", "Duplicate Album Name", JOptionPane.ERROR_MESSAGE);
@@ -541,6 +576,22 @@ public class UserWindowView extends JFrame implements ActionListener {
 					}
 				});
 			}
+		} else if(event.getSource() instanceof JButton && ((JButton)event.getSource()).getText().equals("<<")) {
+			System.out.println("<< Pressed");
+			photoSelectedIndex--;
+			if(photoSelectedIndex < 0) {
+				photoSelectedIndex = photoList.size() - 1;
+			}
+			photoSelected = photoList.get(photoSelectedIndex);
+			setupPhotoDetailPanel();
+		} else if(event.getSource() instanceof JButton && ((JButton)event.getSource()).getText().equals(">>")) {
+			System.out.println(">> Pressed");
+			photoSelectedIndex++;
+			if(photoSelectedIndex >= photoList.size()) {
+				photoSelectedIndex = 0;
+			}
+			photoSelected = photoList.get(photoSelectedIndex);
+			setupPhotoDetailPanel();
 		}
 	}
 
