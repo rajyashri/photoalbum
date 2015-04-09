@@ -12,6 +12,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -33,7 +34,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import cs213.photoAlbum.control.IUserController;
-import cs213.photoAlbum.control.UserController;
 import cs213.photoAlbum.control.UserDataController;
 import cs213.photoAlbum.model.IAlbum;
 import cs213.photoAlbum.model.IPhoto;
@@ -211,6 +211,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 		albumList.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		albumListPanel.add(albumList);	
+		albumListPanel.add(new JLabel(" "));
 
 		albumAdd = new JButton("Add Album");
 		albumRename = new JButton("Rename Album");
@@ -227,9 +228,10 @@ public class UserWindowView extends JFrame implements ActionListener {
 		albumRename.setEnabled(false);
 		albumDelete.setEnabled(false);
 
-		albumListPanel.add(albumAdd);
 		albumListPanel.add(albumRename);
 		albumListPanel.add(albumDelete);
+		albumListPanel.add(new JLabel(" "));
+		albumListPanel.add(albumAdd);
 
 		albumListPanel.setVisible(true);
 		albumListPanel.revalidate();
@@ -371,23 +373,83 @@ public class UserWindowView extends JFrame implements ActionListener {
 			JLabel label = new JLabel("Caption: " + photoSelected.getCaption());
 			photoDetailPanel.add(label, cnts);
 
+			JButton editCaption = new JButton("Edit Caption");
 			cnts.gridx = 0;
 			cnts.gridy = 2;
-			cnts.gridwidth = 2;
+			cnts.gridwidth = 1;
+			cnts.gridheight = 1;
+			cnts.ipadx = 10;
+			editCaption.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					String caption = JOptionPane.showInputDialog(UserWindowView.this,
+						       	"Enter new caption:", "Edit Caption", JOptionPane.PLAIN_MESSAGE);
+
+					if(caption.isEmpty()) {
+						JOptionPane.showMessageDialog(UserWindowView.this,
+							       	"Caption can't be blank", "Invalid Caption", JOptionPane.ERROR_MESSAGE);
+					} else {
+						IPhoto photo;
+						try {
+							photo = new Photo(photoSelected.getFileName(), photoSelected.getCaption());
+
+							List<IAlbum> containingAlbums = controller.getAlbumsContaining(photo);
+							if(!containingAlbums.isEmpty()) {
+								// Get a reference to this photo
+								photo = controller.getPhoto(photo.getFileName(), containingAlbums.get(0).getName());
+								photo.setCaption(caption);
+								System.out.println("Updated photo caption");
+							}
+						} catch (FileNotFoundException e) {
+							System.out.println("File  does not exist");
+						}
+
+						setupPhotoDetailPanel();
+					}
+				}
+			});
+			photoDetailPanel.add(editCaption, cnts);
+
+			cnts.gridx = 1;
+			cnts.gridy = 2;
+			cnts.gridwidth = 1;
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
 			JButton editTags = new JButton("Edit Tags");
 			photoDetailPanel.add(editTags, cnts);
 
-			cnts.gridx = 1;
+			cnts.gridx = 0;
 			cnts.gridy = 3;
 			cnts.gridwidth = 1;
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
 			JButton deletePhoto = new JButton("Delete Photo");
+			deletePhoto.addActionListener(this);
 			photoDetailPanel.add(deletePhoto, cnts);
 
-			cnts.gridx = 2;
+			deletePhoto.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					if(photoSelected != null) {
+						int answer = JOptionPane.showConfirmDialog(
+								UserWindowView.this,
+								"Are you sure you want to delete this photo?",
+								"Delete Photo",
+								JOptionPane.YES_NO_OPTION);
+						if(answer == JOptionPane.YES_OPTION) {
+							controller.removePhotoFromAlbum(
+									photoSelected.getFileName(), 
+									albumSelected.getName());
+							photoSelected = null;
+							setupPhotoDetailPanel();
+							setupPhotoGridPanel();
+						}
+					}
+				}
+			});
+
+
+			cnts.gridx = 1;
 			cnts.gridy = 3;
 			cnts.gridwidth = 1;
 			cnts.gridheight = 1;
