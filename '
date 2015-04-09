@@ -477,10 +477,10 @@ public class UserWindowView extends JFrame implements ActionListener {
 								"Cannot Move", JOptionPane.ERROR_MESSAGE);
 					} else {
 						controller.removePhotoFromAlbum(photoSelected.getFileName(), albumSelected.getName());
-						controller.addPhotoToAlbum(photoSelected, list.getSelectedValue());
+						controller.addPhotoToAlbum(photoSelected, albumSelected.getName());
 						photoSelected = null;
 						setupPhotoDetailPanel();
-						setupPhotoGridPanel();
+						setupPhotoAlbumPanel();
 					}
 				}
 			});
