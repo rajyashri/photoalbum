@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -27,6 +28,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
@@ -91,8 +93,8 @@ public class UserWindowView extends JFrame implements ActionListener {
 		} catch (Exception e) {}
 
 		UserWindowView view = new UserWindowView(userController, user);
-		view.setSize(900, 600);
-		view.setMinimumSize(new Dimension(800, 600));
+		view.setSize(900, 700);
+		view.setMinimumSize(new Dimension(800, 700));
 		view.setLocationRelativeTo(null);
 		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		view.pack();
@@ -108,6 +110,15 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 		setupGeneralLayout();
 		setupAlbumListPanel();
+	}
+
+	private void resizeGrid() {
+		if(photoGrid != null) {
+			int columns = (getContentPane().getWidth() - 500) / 110;
+			int rows = 0; // any number of rows
+			
+			photoGrid.setLayout(new GridLayout(rows, columns));
+		}
 	}
 
 	private void setupGeneralLayout() {
@@ -127,10 +138,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 			public void componentResized(ComponentEvent ce) {
 				photoGridPanel.setPreferredSize(
 						new Dimension( 4000, getContentPane().getHeight() - 10));
-				if(photoGrid != null) {
-					int columns = (getContentPane().getWidth() - 500) / 120;
-					photoGrid.setLayout(new GridLayout(0, columns));
-				}
+				resizeGrid();
 			}
 
 			public void componentMoved(ComponentEvent ce) { }
@@ -189,8 +197,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 			albums[i] = list.get(i).getName();
 		}
 
-		System.out.println("There are " + albums.length + " albums");
-
 		albumList = new JList<String>(albums);
 		albumList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		albumList.setLayoutOrientation(JList.VERTICAL);
@@ -202,15 +208,19 @@ public class UserWindowView extends JFrame implements ActionListener {
 			@Override
 			public void valueChanged(ListSelectionEvent event) {
 				if(albumList.getSelectedIndex() >= 0) {
-					albumSelected = list.get(albumList.getSelectedIndex());
-					albumRename.setEnabled(true);
-					albumDelete.setEnabled(true);
+					if(list.get(albumList.getSelectedIndex()) != albumSelected) {
+						albumSelected = list.get(albumList.getSelectedIndex());
+						photoSelected = null;
+						albumRename.setEnabled(true);
+						albumDelete.setEnabled(true);
+					}
 				} else {
 					albumSelected = null;
 					albumRename.setEnabled(false);
 					albumDelete.setEnabled(false);
 				}
 				setupPhotoGridPanel();
+				setupPhotoDetailPanel();
 			}
 		});
 		albumList.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -254,7 +264,17 @@ public class UserWindowView extends JFrame implements ActionListener {
 			// Show empty view
 			photoGridPanel.setBorder(BorderFactory.createTitledBorder(""));
 		} else {
-			photoGridPanel.setBorder(BorderFactory.createTitledBorder(albumSelected.getName()));
+			photoGridPanel.setBorder(BorderFactory.createTitledBorder(albumSelected.getName() ));
+
+			JLabel photoLabel = new JLabel(albumSelected.getPhotoCount() + " photos");
+			photoGridPanel.add(photoLabel);
+
+			if(albumSelected.getPhotoCount() != 0) {
+				JLabel dateLabelFrom = new JLabel("From " + DATE_FORMAT.format(albumSelected.getFirstDate().getTime()));
+				JLabel dateLabelTo = new JLabel("     to " + DATE_FORMAT.format(albumSelected.getLastDate().getTime()));
+				photoGridPanel.add(dateLabelFrom);
+				photoGridPanel.add(dateLabelTo);
+			}
 
 			// Setup photo grid
 			photoGrid = new JPanel(new GridLayout(0, 3));
@@ -299,6 +319,14 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 					if(value == JFileChooser.APPROVE_OPTION) {
 						File file = chooser.getSelectedFile();
+
+						if(!file.exists()) {
+							JOptionPane.showMessageDialog(photoAdd, 
+									"The selected file doesn't exist",
+									"Cannot Add Photo",
+									JOptionPane.ERROR_MESSAGE);
+							return;
+						}
 
 						// Make sure there isn't already a photo with 
 						// this file path
@@ -388,6 +416,9 @@ public class UserWindowView extends JFrame implements ActionListener {
 								icon.getImage().getWidth(this), java.awt.Image.SCALE_FAST)));
 			photoDetailPanel.add(iconLabel, cnts);
 
+			cnts.gridy++;
+			photoDetailPanel.add(new JLabel(" "), cnts);
+
 
 			cnts.gridx = 0;
 			cnts.gridy++;
@@ -395,8 +426,9 @@ public class UserWindowView extends JFrame implements ActionListener {
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
 			cnts.ipady = 10;
-			JLabel captionlabel = new JLabel("Caption: " + photoSelected.getCaption());
-			photoDetailPanel.add(captionlabel, cnts);
+			JTextArea captionLabel = new JTextArea("Caption: " + photoSelected.getCaption());
+			captionLabel.setMaximumSize(new Dimension(300, 500));
+			photoDetailPanel.add(captionLabel, cnts);
 
 			cnts.gridx = 0;
 			cnts.gridy++;
@@ -404,10 +436,32 @@ public class UserWindowView extends JFrame implements ActionListener {
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
 			cnts.ipady = 10;
-		    JLabel dateLabel = new JLabel("Date: " + DATE_FORMAT.format(photoSelected.getDateTime().getTime()));
+			JTextArea dateLabel = new JTextArea("Date: " + DATE_FORMAT.format(photoSelected.getDateTime().getTime()));
 			photoDetailPanel.add(dateLabel, cnts);
 
 
+			cnts.gridy++;
+			cnts.gridwidth = 3;
+			List<String> tags = photoSelected.getTagStrings();
+			if(tags.isEmpty()) {
+				photoDetailPanel.add(new JTextArea("No tags set"), cnts);
+			} else {
+				photoDetailPanel.add(new JTextArea("Tags: "), cnts);
+
+				cnts.gridy++;
+				String[] tagArray = new String[tags.size()];
+				for(int i = 0; i < tagArray.length; i++) {
+					tagArray[i] = tags.get(i);
+				}
+				JList<String> tagList = new JList<String>(tagArray);
+				tagList.setSelectionModel(new NoSelectionModel());
+				JScrollPane listScroller = new JScrollPane(tagList);
+				photoDetailPanel.add(tagList, cnts);
+			}
+
+			cnts.gridy++;
+			photoDetailPanel.add(new JLabel(" "), cnts);
+			
 			JButton editCaption = new JButton("Edit Caption");
 			cnts.gridx = 0;
 			cnts.gridy++;
@@ -433,10 +487,8 @@ public class UserWindowView extends JFrame implements ActionListener {
 								// Get a reference to this photo
 								photo = controller.getPhoto(photo.getFileName(), containingAlbums.get(0).getName());
 								photo.setCaption(caption);
-								System.out.println("Updated photo caption");
 							}
 						} catch (FileNotFoundException e) {
-							System.out.println("File  does not exist");
 						}
 
 						setupPhotoDetailPanel();
@@ -523,6 +575,8 @@ public class UserWindowView extends JFrame implements ActionListener {
 		photoGridPanel.setVisible(true);
 		photoGridPanel.revalidate();
 		photoGridPanel.repaint();
+
+		resizeGrid();
 	}
 
 	// ActionListener method
@@ -577,7 +631,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 				});
 			}
 		} else if(event.getSource() instanceof JButton && ((JButton)event.getSource()).getText().equals("<<")) {
-			System.out.println("<< Pressed");
 			photoSelectedIndex--;
 			if(photoSelectedIndex < 0) {
 				photoSelectedIndex = photoList.size() - 1;
@@ -585,7 +638,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 			photoSelected = photoList.get(photoSelectedIndex);
 			setupPhotoDetailPanel();
 		} else if(event.getSource() instanceof JButton && ((JButton)event.getSource()).getText().equals(">>")) {
-			System.out.println(">> Pressed");
 			photoSelectedIndex++;
 			if(photoSelectedIndex >= photoList.size()) {
 				photoSelectedIndex = 0;
@@ -595,4 +647,10 @@ public class UserWindowView extends JFrame implements ActionListener {
 		}
 	}
 
+	class NoSelectionModel extends DefaultListSelectionModel {
+		@Override
+		public void setSelectionInterval(int index0, int index1) {
+			super.setSelectionInterval(-1, -1);
+		}
+	}
 }

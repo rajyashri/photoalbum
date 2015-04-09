@@ -1,11 +1,10 @@
 package cs213.photoAlbum.simpleview;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,7 +16,6 @@ import javax.swing.event.DocumentListener;
 
 import cs213.photoAlbum.control.IUserController;
 import cs213.photoAlbum.control.UserController;
-import cs213.photoAlbum.model.User;
 
 public class LoginView extends JFrame implements ActionListener, DocumentListener {
 
@@ -32,14 +30,18 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 	IUserController controller;
 	
 	public LoginView(){
-		super("Login");
+		super("Photo Album Login");
 		setupLayout();
 	}
 
 	public static void showWindow() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {}
+		
 		LoginView view = new LoginView();
 		view.setVisible(true);
-		view.setSize(300, 300);
+		view.setSize(300, 200);
 		view.setLocationRelativeTo(null);
 		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -57,7 +59,6 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 		constraints.gridy = 0;
 		constraints.gridwidth = 1;
 		add(userID,constraints);
-
 		
 		invalidID = new JLabel("<html><font color='red'>Invalid User ID</font></html>");
 		constraints.gridx = 1;
@@ -76,6 +77,7 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 		constraints.ipadx = 0;
 		constraints.gridx = 1;
 		constraints.gridy = 2;
+		constraints.anchor = GridBagConstraints.EAST;
 		constraints.gridwidth = 1;
 		add(loginButton,constraints);
 		loginButton.setEnabled(false);
