@@ -80,24 +80,18 @@ public class UserWindowView extends JFrame implements ActionListener {
 	private IAlbum albumSelected = null;
 	private IPhoto photoSelected = null;
 
-	public static void main(String[] args) {
-		// TODO hardcoding usercontroller / user for now 
-		// until login screen is done
-		show(new UserController(), 
-				new UserController().getUser("victor"));
-	}
-
 	public static void show(IUserController userController, IUser user) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {}
 
 		UserWindowView view = new UserWindowView(userController, user);
-		view.setVisible(true);
 		view.setSize(900, 600);
 		view.setMinimumSize(new Dimension(800, 600));
 		view.setLocationRelativeTo(null);
 		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		view.pack();
+		view.setVisible(true);
 	}
 
 	public UserWindowView(IUserController userController, IUser user) {

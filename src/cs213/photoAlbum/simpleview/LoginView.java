@@ -86,17 +86,13 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 					//Invoke AdminView
 					System.out.println("Admin user");
 					invalidID.setVisible(false);
-					
-				}
-				else if(controller.userExists(id)){
+				} else if(controller.userExists(id)){
 					invalidID.setVisible(false);
-					UserWindowView userView = new UserWindowView(controller, controller.getUser(id));
-					
-					//System.out.println("User Exists");
-					
-				}
-				else
+					LoginView.this.dispose();
+					UserWindowView.show(controller, controller.getUser(id));
+				} else {
 					invalidID.setVisible(true);
+				}
 			}
 			
 		});
@@ -109,7 +105,7 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 		LoginView view = new LoginView();
 		
 		view.setVisible(true);
-		view.setSize(500,400);
+		view.setSize(300,300);
 		view.setLocationRelativeTo(null);
 		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
