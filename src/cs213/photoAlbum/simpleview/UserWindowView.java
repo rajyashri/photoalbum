@@ -62,7 +62,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 	// photoGridPanel fields
 	private JLabel albumTitle;
-	// TODO private GridLayout photoGrid;
 	private JPanel photoGrid;
 	private JButton photoAdd;
 
@@ -453,7 +452,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 				for(int i = 0; i < tagArray.length; i++) {
 					tagArray[i] = tags.get(i);
 				}
-				JList<String> tagList = new JList<String>(tagArray);
+				tagList = new JList<String>(tagArray);
 				tagList.setSelectionModel(new NoSelectionModel());
 				JScrollPane listScroller = new JScrollPane(tagList);
 				photoDetailPanel.add(tagList, cnts);
@@ -474,7 +473,9 @@ public class UserWindowView extends JFrame implements ActionListener {
 					String caption = JOptionPane.showInputDialog(UserWindowView.this,
 						       	"Enter new caption:", "Edit Caption", JOptionPane.PLAIN_MESSAGE);
 
-					if(caption.isEmpty()) {
+					if(caption == null) {
+						// Do nothing
+					} else if(caption.isEmpty()) {
 						JOptionPane.showMessageDialog(UserWindowView.this,
 							       	"Caption can't be blank", "Invalid Caption", JOptionPane.ERROR_MESSAGE);
 					} else {
@@ -502,6 +503,21 @@ public class UserWindowView extends JFrame implements ActionListener {
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
 			JButton editTags = new JButton("Edit Tags");
+			editTags.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					EditTagsDialog diag = new EditTagsDialog(UserWindowView.this,
+									photoSelected, controller, 
+									new EditTagsDialog.Callbacks() {
+										@Override
+										public void editTagsDialogClosed() {
+											// Refresh photo detail view 
+											// in case tags were updated
+											setupPhotoDetailPanel();
+										}
+									});
+				}
+			});
 			photoDetailPanel.add(editTags, cnts);
 
 			cnts.gridx = 0;
@@ -510,7 +526,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 			cnts.gridheight = 1;
 			cnts.ipadx = 10;
 			JButton deletePhoto = new JButton("Delete Photo");
-			deletePhoto.addActionListener(this);
 			deletePhoto.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
