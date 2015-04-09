@@ -206,7 +206,7 @@ public class EditTagsDialog extends JDialog implements ListSelectionListener, Ac
 						"Tag's value can't contain \":\"",
 						"Invalid Tag Value",
 						JOptionPane.ERROR_MESSAGE);
-				if(controller.addTag(photo, key, value)) {
+				} else if(controller.addTag(photo, key.trim().toLowerCase(), value.trim())) {
 					// Added successfully!
 				} else {
 					// Show duplicate tag message
