@@ -35,50 +35,63 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 		super("Login");
 		setupLayout();
 	}
-	
+
+	public static void showWindow() {
+		LoginView view = new LoginView();
+		view.setVisible(true);
+		view.setSize(300, 300);
+		view.setLocationRelativeTo(null);
+		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
 	
 	private void setupLayout() {
-		// TODO Auto-generated method stub
-		
 		grid = new GridBagLayout();
 		setLayout(grid);
 			
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.ipadx = 10;
+		constraints.ipady = 10;
 		
 		userID = new JLabel("UserID");
-		constraints.weightx = 0.5;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
+		constraints.gridwidth = 1;
 		add(userID,constraints);
+
 		
-		invalidID = new JLabel("Invalid User ID");
+		invalidID = new JLabel("<html><font color='red'>Invalid User ID</font></html>");
 		constraints.gridx = 1;
 		constraints.gridy = 0;
 		add(invalidID,constraints);
 		invalidID.setVisible(false);
-		
+			
 		text = new JTextField(15);
+		text.addActionListener(this);
 		constraints.gridx = 0;
 		constraints.gridy = 1;
+		constraints.gridwidth = 2;
 		add(text,constraints);
 		
 		loginButton = new JButton("Login");
-		constraints.gridx = 0;
+		constraints.ipadx = 0;
+		constraints.gridx = 1;
 		constraints.gridy = 2;
+		constraints.gridwidth = 1;
 		add(loginButton,constraints);
 		loginButton.setEnabled(false);
 		
 		this.text.getDocument().addDocumentListener(this);
-		
-		loginButton.addActionListener(new ActionListener() {
-            
-			
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				String id = text.getText();
+	}
+
+
+	public static void main(String[] args) {
+		showWindow();
+	}
+	
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String id = text.getText();
 				String admin = "admin";
 				controller = new UserController();
 				
@@ -93,33 +106,6 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 				} else {
 					invalidID.setVisible(true);
 				}
-			}
-			
-		});
-		
-	}
-
-
-	public static void main(String[] args) {
-		
-		LoginView view = new LoginView();
-		
-		view.setVisible(true);
-		view.setSize(300,300);
-		view.setLocationRelativeTo(null);
-		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			
-		
-		
-	}
-	
-	
-	
-	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 
 

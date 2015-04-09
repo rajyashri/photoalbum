@@ -110,6 +110,11 @@ public class UserWindowView extends JFrame implements ActionListener {
 			@Override
 			public void windowClosing(WindowEvent event) {
 				userController.saveUser(user);
+
+				UserWindowView.this.dispose();
+
+				// Show login view
+				LoginView.showWindow();
 			}
 		});
 
