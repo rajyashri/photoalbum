@@ -56,6 +56,13 @@ public class UserDataController {
 		return user.addAlbum(albumName);
 	}
 
+	/**
+	 * @return true if album added, false if it already existed
+	 */
+	public boolean addAlbum(IAlbum album) {
+		return user.addAlbum(album);
+	}
+
 	/**	
 	 * @return true if album added, false if it already existed
 	 */

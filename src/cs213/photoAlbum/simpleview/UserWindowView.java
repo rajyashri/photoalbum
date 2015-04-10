@@ -11,9 +11,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -25,6 +27,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -38,6 +43,7 @@ import javax.swing.event.ListSelectionListener;
 
 import cs213.photoAlbum.control.IUserController;
 import cs213.photoAlbum.control.UserDataController;
+import cs213.photoAlbum.model.Album;
 import cs213.photoAlbum.model.IAlbum;
 import cs213.photoAlbum.model.IPhoto;
 import cs213.photoAlbum.model.IUser;
@@ -85,6 +91,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 	private List<IPhoto> photoList;
 	private IPhoto photoSelected = null;
 	private int photoSelectedIndex = -1;
+	private boolean showSaveAlbum = false;
 
 	public static void show(IUserController userController, IUser user) {
 		try {
@@ -107,6 +114,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 		this.userController = userController;
 		this.controller = new UserDataController(user);
 
+		setupMenuBar();
 		setupGeneralLayout();
 		setupAlbumListPanel();
 	}
@@ -145,7 +153,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 			public void componentHidden(ComponentEvent ce) { }
 		});
 
-		// getContentPane().setLayout(new GridLayout(1, 3));
 		SpringLayout layout = new SpringLayout();
 		getContentPane().setLayout(layout);
 
@@ -183,6 +190,83 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 	}
 
+	private void setupMenuBar() {
+		JMenuBar menubar = new JMenuBar();
+		JMenu search = new JMenu("Search");
+		menubar.add(search);
+		JMenuItem searchByDate = new JMenuItem("By Date");
+		JMenuItem searchByTag = new JMenuItem("By Tag");
+		search.add(searchByDate);
+		search.add(searchByTag);
+		searchByDate.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Calendar start, end;
+
+				String startString = JOptionPane.showInputDialog(getContentPane(), 
+						"Enter start date (in the form MM/DD/YYYY-hh:mm:ss):",
+						"Search by Dates", 
+						JOptionPane.PLAIN_MESSAGE);
+
+				if(startString == null) {
+					// Cancel search
+				} else {
+					try{
+						start = Calendar.getInstance();
+						start.setTime(DATE_FORMAT.parse(startString.trim()));
+						start.set(Calendar.MILLISECOND, 0);
+					} catch(Exception ex) {
+						JOptionPane.showMessageDialog(getContentPane(), 
+							"Dates need to be entered in the format MM/DD/YYYY-hh:mm:ss",
+							"Invalid Date",
+							JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					String endString = JOptionPane.showInputDialog(getContentPane(), 
+						"Enter end date (in the form MM/DD/YYYY-hh:mm:ss):",
+						"Search by Dates", 
+						JOptionPane.PLAIN_MESSAGE);
+
+					try{
+						end = Calendar.getInstance();
+						end.setTime(DATE_FORMAT.parse(endString.trim()));
+						end.set(Calendar.MILLISECOND, 0);
+					} catch(Exception ex) {
+						JOptionPane.showMessageDialog(getContentPane(), 
+							"Dates need to be entered in the format MM/DD/YYYY-hh:mm:ss",
+							"Invalid Date",
+							JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					
+					List<IPhoto> photos = controller.getPhotosByDate(start, end);
+					IAlbum album = new Album("Search by dates: " + startString + " to " + endString, user);
+					for(IPhoto photo : photos) {
+						album.addPhoto(photo);
+					}
+					albumSelected = album;
+					photoSelected = null;
+					showSaveAlbum = true;
+
+					setupPhotoGridPanel();
+					setupPhotoDetailPanel();
+				}
+
+
+
+			}
+		});
+		searchByTag.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+			}
+		});
+		setJMenuBar(menubar);
+	}
+
 	private void setupAlbumListPanel() {
 		while(albumListPanel.getComponentCount() > 0) {
 			albumListPanel.remove(0);
@@ -208,12 +292,14 @@ public class UserWindowView extends JFrame implements ActionListener {
 			public void valueChanged(ListSelectionEvent event) {
 				if(albumList.getSelectedIndex() >= 0) {
 					if(list.get(albumList.getSelectedIndex()) != albumSelected) {
+						showSaveAlbum = false;
 						albumSelected = list.get(albumList.getSelectedIndex());
 						photoSelected = null;
 						albumRename.setEnabled(true);
 						albumDelete.setEnabled(true);
 					}
 				} else {
+					showSaveAlbum = false;
 					albumSelected = null;
 					albumRename.setEnabled(false);
 					albumDelete.setEnabled(false);
@@ -277,7 +363,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 			// Setup photo grid
 			photoGrid = new JPanel(new GridLayout(0, 3));
-			photoList  = controller.getPhotos(albumSelected.getName());
+			photoList  = albumSelected.getPhotos();
 			for(int i = 0; i < photoList.size(); i++) {
 				final IPhoto photo = photoList.get(i);
 				ImageIcon icon = new ImageIcon(photo.getFileName());
@@ -362,6 +448,33 @@ public class UserWindowView extends JFrame implements ActionListener {
 				}
 			});
 			photoGridPanel.add(photoAdd);
+
+			if(showSaveAlbum) {
+				// Show a button to save albumSelected as a new album.
+				// This is used for saving searches
+
+				JButton saveAlbum = new JButton("Save as Album");
+				saveAlbum.setAlignmentX(Component.LEFT_ALIGNMENT);
+				saveAlbum.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if(controller.hasAlbum(albumSelected.getName())) {
+								JOptionPane.showMessageDialog(photoAdd, 
+										"An album with this name alreay exists",
+										"Duplicate Album",
+										JOptionPane.ERROR_MESSAGE);
+						} else {
+							controller.addAlbum(albumSelected);
+							setupAlbumListPanel();
+							albumSelected = null;
+							photoSelected = null;
+							setupPhotoGridPanel();
+							setupPhotoDetailPanel();
+						}
+					}
+				});
+				photoGridPanel.add(saveAlbum);
+			}
 		}
 
 		photoGridPanel.setVisible(true);
