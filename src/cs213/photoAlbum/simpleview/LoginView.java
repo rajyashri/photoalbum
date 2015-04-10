@@ -43,7 +43,7 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 		view.setVisible(true);
 		view.setSize(300, 200);
 		view.setLocationRelativeTo(null);
-		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		view.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 	
 	private void setupLayout() {

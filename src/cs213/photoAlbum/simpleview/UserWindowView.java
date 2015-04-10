@@ -103,7 +103,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 		view.setSize(900, 700);
 		view.setMinimumSize(new Dimension(800, 700));
 		view.setLocationRelativeTo(null);
-		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		view.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		view.pack();
 		view.setVisible(true);
 	}
@@ -134,7 +134,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 			@Override
 			public void windowClosing(WindowEvent event) {
 				userController.saveUser(user);
-
 				UserWindowView.this.dispose();
 
 				// Show login view
@@ -195,10 +194,22 @@ public class UserWindowView extends JFrame implements ActionListener {
 		JMenuBar menubar = new JMenuBar();
 		JMenu search = new JMenu("Search");
 		menubar.add(search);
+		JMenuItem logout = new JMenuItem("Logout");
 		JMenuItem searchByDate = new JMenuItem("By Date");
 		JMenuItem searchByTag = new JMenuItem("By Tag");
 		search.add(searchByDate);
 		search.add(searchByTag);
+		menubar.add(logout);
+		logout.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				userController.saveUser(user);
+				UserWindowView.this.dispose();
+
+				// Show login view
+				LoginView.showWindow();
+			}
+		});
 		searchByDate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
