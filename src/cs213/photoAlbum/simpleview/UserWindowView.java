@@ -92,6 +92,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 	private IPhoto photoSelected = null;
 	private int photoSelectedIndex = -1;
 	private boolean showSaveAlbum = false;
+	private boolean noShowMoveDelete = false;
 
 	public static void show(IUserController userController, IUser user) {
 		try {
@@ -242,26 +243,49 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 					
 					List<IPhoto> photos = controller.getPhotosByDate(start, end);
-					IAlbum album = new Album("Search by dates: " + startString + " to " + endString, user);
+					IAlbum album = new Album("Dates: " + startString + " to " + endString, user);
 					for(IPhoto photo : photos) {
 						album.addPhoto(photo);
 					}
 					albumSelected = album;
 					photoSelected = null;
 					showSaveAlbum = true;
+					noShowMoveDelete = true;
 
 					setupPhotoGridPanel();
 					setupPhotoDetailPanel();
 				}
-
-
-
 			}
 		});
 		searchByTag.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				String tagString = JOptionPane.showInputDialog(getContentPane(), 
+						"Enter tag query\n(in form [<tagType:>]\"<tagValue>\" [,[<tagType:>]\"<tagValue>\"]):",
+						"Search by Tags", 
+						JOptionPane.PLAIN_MESSAGE);
+				
+				if(tagString == null) {
+					// Do nothing on user cancel
+				} else if(tagString.isEmpty()) {
+					JOptionPane.showMessageDialog(photoAdd, 
+							"Tag query cannot be empty",
+							"Blank Search",
+							JOptionPane.ERROR_MESSAGE);
+				} else {
+					List<IPhoto> photos =  controller.getPhotosByTagString(tagString);
+					IAlbum album = new Album("Tags: " + tagString, user);
+					for(IPhoto photo : photos) {
+						album.addPhoto(photo);
+					}
+					albumSelected = album;
+					photoSelected = null;
+					showSaveAlbum = true;
+					noShowMoveDelete = true;
 
+					setupPhotoGridPanel();
+					setupPhotoDetailPanel();
+				}
 			}
 		});
 		setJMenuBar(menubar);
@@ -277,7 +301,11 @@ public class UserWindowView extends JFrame implements ActionListener {
 		final List<IAlbum> list = controller.listAlbums();
 		String[] albums = new String[list.size()];
 		for(int i = 0; i < albums.length; i++) {
-			albums[i] = list.get(i).getName();
+			if(list.get(i).getName().length() < 30) {
+				albums[i] = list.get(i).getName();
+			} else {
+				albums[i] = list.get(i).getName().substring(0, 25) + "...";
+			}
 		}
 
 		albumList = new JList<String>(albums);
@@ -293,6 +321,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 				if(albumList.getSelectedIndex() >= 0) {
 					if(list.get(albumList.getSelectedIndex()) != albumSelected) {
 						showSaveAlbum = false;
+						noShowMoveDelete = false;
 						albumSelected = list.get(albumList.getSelectedIndex());
 						photoSelected = null;
 						albumRename.setEnabled(true);
@@ -300,6 +329,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 					}
 				} else {
 					showSaveAlbum = false;
+					noShowMoveDelete = false;
 					albumSelected = null;
 					albumRename.setEnabled(false);
 					albumDelete.setEnabled(false);
@@ -633,71 +663,73 @@ public class UserWindowView extends JFrame implements ActionListener {
 			});
 			photoDetailPanel.add(editTags, cnts);
 
-			cnts.gridx = 0;
-			cnts.gridy++;
-			cnts.gridwidth = 1;
-			cnts.gridheight = 1;
-			cnts.ipadx = 10;
-			JButton deletePhoto = new JButton("Delete Photo");
-			deletePhoto.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent event) {
-					if(photoSelected != null) {
-						int answer = JOptionPane.showConfirmDialog(
-								UserWindowView.this,
-								"Are you sure you want to delete this photo?",
-								"Delete Photo",
-								JOptionPane.YES_NO_OPTION);
-						if(answer == JOptionPane.YES_OPTION) {
-							controller.removePhotoFromAlbum(
-									photoSelected.getFileName(), 
-									albumSelected.getName());
+			if(!noShowMoveDelete) {
+				cnts.gridx = 0;
+				cnts.gridy++;
+				cnts.gridwidth = 1;
+				cnts.gridheight = 1;
+				cnts.ipadx = 10;
+				JButton deletePhoto = new JButton("Delete Photo");
+				deletePhoto.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent event) {
+						if(photoSelected != null) {
+							int answer = JOptionPane.showConfirmDialog(
+									UserWindowView.this,
+									"Are you sure you want to delete this photo?",
+									"Delete Photo",
+									JOptionPane.YES_NO_OPTION);
+							if(answer == JOptionPane.YES_OPTION) {
+								controller.removePhotoFromAlbum(
+										photoSelected.getFileName(), 
+										albumSelected.getName());
+								photoSelected = null;
+								setupPhotoDetailPanel();
+								setupPhotoGridPanel();
+							}
+						}
+					}
+				});
+				photoDetailPanel.add(deletePhoto, cnts);
+
+
+				cnts.gridx = 1;
+				cnts.gridwidth = 1;
+				cnts.gridheight = 1;
+				cnts.ipadx = 10;
+				JButton movePhoto = new JButton("Move Photo");
+				movePhoto.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent event) {
+						List<IAlbum> albumList = controller.listAlbums();
+						final String[] albumArray = new String[albumList.size() - 1];
+						int i = 0;
+						for(IAlbum album : albumList) {
+							if(!album.getName().equals(albumSelected.getName())) {
+								albumArray[i] = album.getName();
+								i++;
+							}
+						}
+						JList<String> list = new JList<String>(albumArray);
+						list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+						JOptionPane.showMessageDialog(UserWindowView.this, list,
+										"Move to Album", JOptionPane.PLAIN_MESSAGE);
+
+						if(controller.getPhoto(photoSelected.getFileName(), list.getSelectedValue()) != null) {
+							JOptionPane.showMessageDialog(UserWindowView.this, 
+									"Album \"" + list.getSelectedValue() + "\" already contains this photo", 
+									"Cannot Move", JOptionPane.ERROR_MESSAGE);
+						} else {
+							controller.removePhotoFromAlbum(photoSelected.getFileName(), albumSelected.getName());
+							controller.addPhotoToAlbum(photoSelected, list.getSelectedValue());
 							photoSelected = null;
 							setupPhotoDetailPanel();
 							setupPhotoGridPanel();
 						}
 					}
-				}
-			});
-			photoDetailPanel.add(deletePhoto, cnts);
-
-
-			cnts.gridx = 1;
-			cnts.gridwidth = 1;
-			cnts.gridheight = 1;
-			cnts.ipadx = 10;
-			JButton movePhoto = new JButton("Move Photo");
-			movePhoto.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent event) {
-					List<IAlbum> albumList = controller.listAlbums();
-					final String[] albumArray = new String[albumList.size() - 1];
-					int i = 0;
-					for(IAlbum album : albumList) {
-						if(!album.getName().equals(albumSelected.getName())) {
-							albumArray[i] = album.getName();
-							i++;
-						}
-					}
-					JList<String> list = new JList<String>(albumArray);
-					list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-					JOptionPane.showMessageDialog(UserWindowView.this, list,
-									"Move to Album", JOptionPane.PLAIN_MESSAGE);
-
-					if(controller.getPhoto(photoSelected.getFileName(), list.getSelectedValue()) != null) {
-						JOptionPane.showMessageDialog(UserWindowView.this, 
-								"Album \"" + list.getSelectedValue() + "\" already contains this photo", 
-								"Cannot Move", JOptionPane.ERROR_MESSAGE);
-					} else {
-						controller.removePhotoFromAlbum(photoSelected.getFileName(), albumSelected.getName());
-						controller.addPhotoToAlbum(photoSelected, list.getSelectedValue());
-						photoSelected = null;
-						setupPhotoDetailPanel();
-						setupPhotoGridPanel();
-					}
-				}
-			});
-			photoDetailPanel.add(movePhoto, cnts);
+				});
+				photoDetailPanel.add(movePhoto, cnts);
+			}
 		}
 
 		photoGridPanel.setVisible(true);
