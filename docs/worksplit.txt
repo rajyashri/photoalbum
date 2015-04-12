@@ -1,0 +1,5 @@
+Window			Group Member Responsible
+Login 			Rajyashri Vasudevamoorthy
+Admin Session		Rajyashri Vasudevamoorthy
+User Session		Victor Kaiser-Pendergrast
+Edit Tags		Victor Kaiser-Pendergrast
