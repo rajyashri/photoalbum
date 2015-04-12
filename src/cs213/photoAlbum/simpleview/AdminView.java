@@ -63,7 +63,6 @@ public class AdminView extends JFrame implements ActionListener  {
 
 	private GridBagUtility mylayout;
 	
-	//public AdminView(IUserController controller){
 	public AdminView(IUserController controller){
 			
 		super("Admin Session");
@@ -207,56 +206,7 @@ public class AdminView extends JFrame implements ActionListener  {
 		}
 	}
 
-	
-	
-
 }
 
 
 
-/*
-
-private void setupUserList() {
-// TODO Auto-generated method stub
-while(leftPanel.getComponentCount() > 0) {
-	leftPanel.remove(0);
-}
-
-leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
-
-
-
-userList = new JList<String>(users);
-userList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-userList.setLayoutOrientation(JList.VERTICAL);
-userList.setVisibleRowCount(-1);
-
-JScrollPane listScroller = new JScrollPane(userList);
-
-userList.addListSelectionListener(new ListSelectionListener() {
-	@Override
-	public void valueChanged(ListSelectionEvent event) {
-		if(userList.getSelectedIndex() >= 0) {
-			if(list.get(userList.getSelectedIndex()) != userSelected) {
-				userSelected = list.get(userList.getSelectedIndex());
-				userDeleteButton.setEnabled(true);
-			}
-		} else {
-			userSelected = null;
-			userDeleteButton.setEnabled(false);
-		}
-		
-	}
-});
-userList.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-leftPanel.add(userList);	
-leftPanel.add(new JLabel(" "));
-
-userDeleteButton = new JButton("Delete User");
-leftPanel.add(userDeleteButton);
-userDeleteButton.setEnabled(false);
-
-}
-
-*/
