@@ -823,7 +823,11 @@ public class UserWindowView extends JFrame implements ActionListener {
 					@Override
 					public void run() {
 						controller.removeAlbum(albumSelected.getName());
+						photoSelected = null;
+						albumSelcted = null;
 						setupAlbumListPanel();
+						setupPhotoGridPanel();
+						setupPhotoGridPanel();
 					}
 				});
 			}
