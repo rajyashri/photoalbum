@@ -13,8 +13,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,6 +29,7 @@ import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -62,14 +65,14 @@ public class AdminView extends JFrame implements ActionListener  {
 	private IUser userSelected = null;
 	private List<IUser> list;
 	String[] users ;
-
+    private DefaultListModel <String>listModel;
 	private GridBagUtility mylayout;
 	
 	public AdminView(IUserController controller){
 			
 		super("Admin Session");
 		
-	this.controller = controller;
+		this.controller = controller;
 		setVisible(true);
 		setSize(300, 200);
 		setLocationRelativeTo(null);
@@ -89,8 +92,9 @@ public class AdminView extends JFrame implements ActionListener  {
 		
 			leftPanel = new JPanel();
 			rightPanel = new JPanel();
+		
 			
-			userList = new JList(users);
+			userList = new JList(listModel);
 			userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			userList.addListSelectionListener(new ListSelectionListener() {
 				
@@ -104,6 +108,8 @@ public class AdminView extends JFrame implements ActionListener  {
 					
 				}
 			});
+		
+			
 			scrollPane = new JScrollPane();
 			scrollPane.setViewportView(userList);
 
@@ -158,6 +164,9 @@ public class AdminView extends JFrame implements ActionListener  {
 			getContentPane().add(leftPanel);
 			getContentPane().add(rightPanel);
 	
+			leftPanel.setVisible(true);
+			leftPanel.repaint();
+			leftPanel.revalidate();
 
 		
 	}
@@ -174,19 +183,20 @@ public class AdminView extends JFrame implements ActionListener  {
 			userSelected = list.get(index);
 			System.out.println(userSelected.getFullName());
 			controller.deleteUser(userSelected.getUserId());
-			userList.remove(index);
+			listModel.remove(index);
 			userDeleteButton.setEnabled(false);
-			setupLayout();
+			
 		}
 		else if(e.getSource()==addButton)
 		{
 			String userName = text.getText();
+			String userId = userIdText.getText();
 			boolean flag = false;
 		
 
 			for(int index =0 ; index < users.length; index++)
 			{
-				if(userName.equalsIgnoreCase(users[index])){
+				if(userName.equalsIgnoreCase(users[index]) || controller.userExists(userId)){
 					flag = true;
 					break;
 				}
@@ -199,12 +209,13 @@ public class AdminView extends JFrame implements ActionListener  {
 			else
 			{
 				controller.addUser(userIdText.getText(),text.getText());
+				System.out.println(text.getText());
+				listModel.addElement(userName);
+				
 				System.out.println("Added user");
-				populateUserArray();
 				
 			}
-			leftPanel.revalidate();
-			leftPanel.repaint();
+			
 			
 		}
 	}
@@ -228,13 +239,18 @@ public class AdminView extends JFrame implements ActionListener  {
 	public void populateUserArray()
 	{
 		
+		listModel = new DefaultListModel<String>();
 		list = controller.listUsers();
 		users = new String[list.size()];
 		
 		for(int index=0;index<users.length;index++)
 		{
 			users[index]= list.get(index).getFullName();
+			listModel.addElement(users[index]);
+			
+		
 		}
+		
 				
 	}
 
