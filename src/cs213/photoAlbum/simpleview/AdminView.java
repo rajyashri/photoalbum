@@ -52,6 +52,8 @@ public class AdminView extends JFrame implements ActionListener  {
 	private JButton addButton;
 	private JLabel newUserLabel;
 	private JTextField text;
+	private JLabel userIdLabel;
+	private JTextField userIdText;
 	private JLabel userExistLabel;
 	private JScrollPane scrollPane;
 	private IUser user;
@@ -75,14 +77,14 @@ public class AdminView extends JFrame implements ActionListener  {
 		
 		
 		populateUserArray();
-		setNewUserPanel();
-		//setupUserList();
+		setupLayout();
+		
 			
 	}
 
 
 	
-	private void setNewUserPanel() {
+	private void setupLayout() {
 	        mylayout = new GridBagUtility();
 		
 			leftPanel = new JPanel();
@@ -90,6 +92,18 @@ public class AdminView extends JFrame implements ActionListener  {
 			
 			userList = new JList(users);
 			userList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			userList.addListSelectionListener(new ListSelectionListener() {
+				
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					// TODO Auto-generated method stub
+					if(userList.isSelectionEmpty())
+						userDeleteButton.setEnabled(false);
+					else
+						userDeleteButton.setEnabled(true);
+					
+				}
+			});
 			scrollPane = new JScrollPane();
 			scrollPane.setViewportView(userList);
 
@@ -105,6 +119,15 @@ public class AdminView extends JFrame implements ActionListener  {
 					userExistLabel.setVisible(false);
 				}
 			});
+			userIdLabel = new JLabel ("User ID");
+			userIdText = new JTextField(10);
+			userIdText.addFocusListener(new FocusAdapter() {
+				public void focusGained(FocusEvent fe)
+				{
+					userExistLabel.setVisible(false);
+				}
+			});
+			
 			leftPanel.setLayout(new GridBagLayout());
 			rightPanel.setLayout(new GridBagLayout());
 			
@@ -118,6 +141,8 @@ public class AdminView extends JFrame implements ActionListener  {
 			
 			mylayout.appendComponentInGridRow(newUserLabel, rightPanel);
 			mylayout.addFinalFieldInGridRow(text, rightPanel);
+			mylayout.appendComponentInGridRow(userIdLabel, rightPanel);
+			mylayout.addFinalFieldInGridRow(userIdText, rightPanel);
 			
 			
 			mylayout.addFinalFieldInGridRow(new JLabel(""), rightPanel);
@@ -146,20 +171,22 @@ public class AdminView extends JFrame implements ActionListener  {
 		if(e.getSource()==userDeleteButton)
 		{
 			int index = userList.getSelectedIndex();
-			controller.deleteUser(getName());
+			userSelected = list.get(index);
+			System.out.println(userSelected.getFullName());
+			controller.deleteUser(userSelected.getUserId());
 			userList.remove(index);
-			//populateUserArray();
-			
+			userDeleteButton.setEnabled(false);
+			setupLayout();
 		}
 		else if(e.getSource()==addButton)
 		{
-			String user = text.getText();
+			String userName = text.getText();
 			boolean flag = false;
 		
 
 			for(int index =0 ; index < users.length; index++)
 			{
-				if(user.equalsIgnoreCase(users[index])){
+				if(userName.equalsIgnoreCase(users[index])){
 					flag = true;
 					break;
 				}
@@ -171,10 +198,14 @@ public class AdminView extends JFrame implements ActionListener  {
 				userExistLabel.setVisible(flag);
 			else
 			{
-				//controller.addUser(userid, name)
-				System.out.println("Add user here");
-				//populateUserArray();
+				controller.addUser(userIdText.getText(),text.getText());
+				System.out.println("Added user");
+				populateUserArray();
+				
 			}
+			leftPanel.revalidate();
+			leftPanel.repaint();
+			
 		}
 	}
 	
@@ -204,6 +235,7 @@ public class AdminView extends JFrame implements ActionListener  {
 		{
 			users[index]= list.get(index).getFullName();
 		}
+				
 	}
 
 }

@@ -100,6 +100,7 @@ public class LoginView extends JFrame implements ActionListener, DocumentListene
 				if(id.equals(admin)){
 					//Invoke AdminView
 					System.out.println("Admin user");
+					AdminView.showWindow(controller);
 					invalidID.setVisible(false);
 				} else if(controller.userExists(id)){
 					invalidID.setVisible(false);
