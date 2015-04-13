@@ -112,16 +112,13 @@ public class LoginView extends JFrame implements ActionListener,
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		// TODO Auto-generated method stub
 		updateButtonEnabledStatus(loginButton, text);
 
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		// TODO Auto-generated method stub
 		updateButtonEnabledStatus(loginButton, text);
-
 	}
 
 	@Override
