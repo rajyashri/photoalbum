@@ -32,6 +32,11 @@ public class EditTagsDialog extends JDialog implements ListSelectionListener, Ac
 	 * A listener for when the EditTagsDialog is closed
 	 */
 	public static interface Callbacks {
+		/**
+		 * Called when the EditTagsDialog is closed,
+		 * this would be a good time to refresh
+		 * the tags displayed, in case there were updates
+		 */
 		public void editTagsDialogClosed();
 	}
 
@@ -70,6 +75,9 @@ public class EditTagsDialog extends JDialog implements ListSelectionListener, Ac
 		setupView();
 	}
 
+	/**
+	 * Sets up the layout and content of the window
+	 */
 	private void setupView() {
 		while(getContentPane().getComponentCount() > 0) {
 			getContentPane().remove(0);
