@@ -94,6 +94,11 @@ public class UserWindowView extends JFrame implements ActionListener {
 	private boolean showSaveAlbum = false;
 	private boolean noShowMoveDelete = false;
 
+	/**
+	 * Shows a UserWindowView
+	 * @param userController the user controller used by LoginView
+	 * @param user the user whose details this UserWindowView should show
+	 */
 	public static void show(IUserController userController, IUser user) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -108,7 +113,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 		view.setVisible(true);
 	}
 
-	public UserWindowView(IUserController userController, IUser user) {
+	private UserWindowView(IUserController userController, IUser user) {
 		super(user.getFullName() + "'s Albums");
 
 		this.user = user;
@@ -129,6 +134,11 @@ public class UserWindowView extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * Sets up the three panes for 
+	 * listing albums, showing pictures,
+	 * and showing pictured details
+	 */
 	private void setupGeneralLayout() {
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -190,6 +200,10 @@ public class UserWindowView extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * Sets up the Search and Logout
+	 * items in the MenuBar
+	 */
 	private void setupMenuBar() {
 		JMenuBar menubar = new JMenuBar();
 		JMenu search = new JMenu("Search");
@@ -302,6 +316,10 @@ public class UserWindowView extends JFrame implements ActionListener {
 		setJMenuBar(menubar);
 	}
 
+	/**
+	 * Populates the AlbumListPanel, can also be used
+	 * to refresh the album list
+	 */
 	private void setupAlbumListPanel() {
 		while(albumListPanel.getComponentCount() > 0) {
 			albumListPanel.remove(0);
@@ -379,6 +397,10 @@ public class UserWindowView extends JFrame implements ActionListener {
 		albumListPanel.repaint();
 	}
 
+	/**
+	 * Shows the grid of photos based on the currently
+	 * selected album, or by the current search
+	 */
 	private void setupPhotoGridPanel() {
 		while(photoGridPanel.getComponentCount() > 0) {
 			photoGridPanel.remove(0);
@@ -483,7 +505,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 								}
 							}
 						} catch (Exception e1) {
-							e1.printStackTrace();
+							// Should never happen
 						}
 					}
 				}
@@ -523,6 +545,10 @@ public class UserWindowView extends JFrame implements ActionListener {
 		photoGridPanel.repaint();
 	}
 
+	/**
+	 * Show's the details of the current photo,
+	 * allows editing of tags, updating of caption, etc.
+	 */
 	private void setupPhotoDetailPanel() {
 		while(photoDetailPanel.getComponentCount() > 0) {
 			photoDetailPanel.remove(0);
@@ -750,7 +776,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 		resizeGrid();
 	}
 
-	// ActionListener method
+	// ActionListener methods
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if(event.getSource() == albumAdd) {
@@ -818,6 +844,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 		}
 	}
 
+	// Used to not show selections for the Tag list
 	class NoSelectionModel extends DefaultListSelectionModel {
 		@Override
 		public void setSelectionInterval(int index0, int index1) {
