@@ -219,7 +219,7 @@ public class AdminView extends JFrame implements ActionListener {
 		view.setSize(300, 350);
 		view.setMinimumSize(new Dimension(300, 350));
 		view.setLocationRelativeTo(null);
-		view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		view.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		view.pack();
 		view.setVisible(true);
 

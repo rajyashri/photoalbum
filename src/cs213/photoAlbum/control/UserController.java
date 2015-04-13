@@ -167,10 +167,25 @@ public class UserController implements IUserController {
 		return "../data";
 	}
 
-	@Override
+	/**
+	 * Save the state of a user
+	 * @return true if user saved successfully
+	 */
 	public boolean saveUser(IUser user) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			FileOutputStream fileOut = new FileOutputStream(getDataDirectory() + "/" + user.getUserId());
+			ObjectOutputStream objOut = new ObjectOutputStream(fileOut);
+
+			objOut.writeObject(user);
+
+			objOut.close();
+			fileOut.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 	
 }

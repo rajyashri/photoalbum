@@ -120,6 +120,19 @@ public class UserWindowView extends JFrame implements ActionListener {
 		this.userController = userController;
 		this.controller = new UserDataController(user);
 
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent event) {
+				System.out.println("Saving user");
+				System.out.println(userController.saveUser(user));
+				
+				UserWindowView.this.dispose();
+
+				// Show login view
+				LoginView.showWindow();
+			}
+		});
+
 		setupMenuBar();
 		setupGeneralLayout();
 		setupAlbumListPanel();
@@ -140,17 +153,6 @@ public class UserWindowView extends JFrame implements ActionListener {
 	 * and showing pictured details
 	 */
 	private void setupGeneralLayout() {
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent event) {
-				userController.saveUser(user);
-				UserWindowView.this.dispose();
-
-				// Show login view
-				LoginView.showWindow();
-			}
-		});
-
 		getContentPane().addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent ce) {
 				photoGridPanel.setPreferredSize(
@@ -818,14 +820,13 @@ public class UserWindowView extends JFrame implements ActionListener {
 					"Delete Album",
 					JOptionPane.YES_NO_OPTION);
 			if(answer == JOptionPane.YES_OPTION) {
-				// Do delete
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						controller.removeAlbum(albumSelected.getName());
-						setupAlbumListPanel();
-					}
-				});
+				boolean success = controller.removeAlbum(albumSelected.getName());
+				System.out.println(success);
+				photoSelected = null;
+				photoSelected = null;
+				setupPhotoDetailPanel();
+				setupPhotoGridPanel();
+				setupAlbumListPanel();
 			}
 		} else if(event.getSource() instanceof JButton && ((JButton)event.getSource()).getText().equals("<<")) {
 			photoSelectedIndex--;
