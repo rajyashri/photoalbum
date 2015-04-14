@@ -1,3 +1,9 @@
+/**
+ * @author Victor Kaiser-Pendergrast
+ * @author Rajyashri Vasudevamoorthy
+ */
+
+
 package cs213.photoAlbum.simpleview;
 
 import java.awt.Component;
