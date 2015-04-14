@@ -129,9 +129,7 @@ public class UserWindowView extends JFrame implements ActionListener {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent event) {
-				System.out.println("Saving user");
-				System.out.println(userController.saveUser(user));
-				
+
 				UserWindowView.this.dispose();
 
 				// Show login view
