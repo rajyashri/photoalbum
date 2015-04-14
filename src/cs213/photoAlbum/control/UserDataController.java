@@ -109,6 +109,10 @@ public class UserDataController {
 		return album.removePhoto(photoFilePath);
 	}
 
+	public boolean removePhotoFromAlbum(IPhoto photo, IAlbum album) {
+		return album.removePhoto(photo);
+	}
+
 	/**
 	 * Find the albums that contain this IPhoto
 	 * @return a list of IAlbums containing photo
