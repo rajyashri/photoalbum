@@ -720,8 +720,8 @@ public class UserWindowView extends JFrame implements ActionListener {
 									JOptionPane.YES_NO_OPTION);
 							if(answer == JOptionPane.YES_OPTION) {
 								controller.removePhotoFromAlbum(
-										photoSelected.getFileName(), 
-										albumSelected.getName());
+										photoSelected,
+										albumSelected);
 								photoSelected = null;
 								setupPhotoDetailPanel();
 								setupPhotoGridPanel();
